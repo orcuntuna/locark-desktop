@@ -1,14 +1,31 @@
 <script>
   import { status } from "../store/network";
+  import { downloads_listing, downloads_data } from "../store/dowloads";
   import { getNotificationsContext } from "svelte-notifications";
   import decode_pin from "../helper/decode_pin";
   import validate_ipv4 from "../helper/validate_ipv4";
+  import Downloads from "./Downloads.svelte";
   const { addNotification } = getNotificationsContext();
-  let pin;
+  let pin = "BCFZHK";
   const formOnSubmit = event => {
     event.preventDefault();
     const target_ip = decode_pin(pin);
     if (validate_ipv4(target_ip)) {
+      downloads_listing.set(true);
+      downloads_data.set([
+        {
+          name: "kaynaklar.txt",
+          size: 12
+        },
+        {
+          name: "Kitap.pdf",
+          size: 832
+        },
+        {
+          name: "Kitap.html",
+          size: 730
+        }
+      ]);
     } else {
       addNotification({
         text: "PIN is wrong",
@@ -53,17 +70,21 @@
 <div class="box">
   <h2 class="title">Get Files</h2>
   <h3>on computers or phones</h3>
-  <form on:submit={formOnSubmit}>
-    <input
-      bind:value={pin}
-      type="text"
-      class="form-control"
-      placeholder="Connection PIN"
-      required />
-    {#if $status == 'online'}
-      <button class="btn">Connect</button>
-    {:else}
-      <button class="btn" disabled>Connect</button>
-    {/if}
-  </form>
+  {#if $downloads_listing}
+    <Downloads {pin} />
+  {:else}
+    <form on:submit={formOnSubmit}>
+      <input
+        bind:value={pin}
+        type="text"
+        class="form-control"
+        placeholder="Connection PIN"
+        required />
+      {#if $status == 'online'}
+        <button class="btn">Connect</button>
+      {:else}
+        <button class="btn" disabled>Connect</button>
+      {/if}
+    </form>
+  {/if}
 </div>

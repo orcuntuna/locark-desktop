@@ -3,7 +3,6 @@
   export let message;
   const { ipcRenderer } = require("electron");
   ipcRenderer.on("network-status", (event, arg) => {
-    console.log(arg);
     status.set(arg.status);
   });
   const tryAgain = () => {
