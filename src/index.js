@@ -4,6 +4,7 @@ const localIpV4Address = require("local-ipv4-address");
 const express = require('express')
 const expressApp = express()
 const fs = require('fs')
+const filesPath = path.join(app.getPath("home"), ".locark/files/")
 
 require('electron-reload')(__dirname, {
   electron: path.join(__dirname, '../node_modules', '.bin', 'electron'),
@@ -12,6 +13,12 @@ require('electron-reload')(__dirname, {
 
 if (require('electron-squirrel-startup')) {
   app.quit();
+}
+
+asyncForEach = async (array, callback) => {
+  for (let index = 0; index < array.length; index++) {
+    await callback(array[index], index, array);
+  }
 }
 
 const checkInternetConnection = (window) => {
@@ -23,7 +30,6 @@ const checkInternetConnection = (window) => {
 }
 
 const createServer = () => {
-  const filesPath = path.join(app.getPath("home"), ".locark/files/")
   expressApp.use(express.static(filesPath))
   expressApp.get('/files', (req, res) => {
     fs.readdir(filesPath, async (err, files) => {
@@ -56,6 +62,33 @@ const createServer = () => {
   expressApp.listen(21249);
 }
 
+const copyFiles = async (filesFullPath, window) => {
+  await asyncForEach(filesFullPath, async (file) => {
+    const { COPYFILE_EXCL } = fs.constants;
+    name = file.split('/')
+    name = name[name.length - 1]
+    if (checkFile(name)) {
+      fs.copyFileSync(path.join(file), path.join(app.getAppPath(), "files/", name), COPYFILE_EXCL, (err) => {
+        window.webContents.send('copy-upload-file', { name, status: 2 })
+      });
+      const stat = fs.statSync(path.join(file), (err) => {
+        window.webContents.send('copy-upload-file', { name, size: stat.size, status: 2 })
+      })
+      window.webContents.send('copy-upload-file', { name, size: stat.size, status: 1 })
+    }
+  })
+}
+
+const checkFile = (name) => {
+  staticPath = path.join(app.getAppPath(), "files/", name)
+  try {
+    fs.accessSync(staticPath, fs.constants.F_OK | fs.constants.W_OK);
+    return false
+  } catch (err) {
+    return true
+  }
+}
+
 const createWindow = () => {
   const mainWindow = new BrowserWindow({
     width: 800,
@@ -70,9 +103,8 @@ const createWindow = () => {
     ipcMain.on('network-status-check', () => {
       checkInternetConnection(mainWindow);
     })
-    createServer();
-    ipcMain.on('add-upload-file', (fullPath) => {
-
+    ipcMain.on('add-upload-file', (event, filesPath) => {
+      copyFiles(filesPath, mainWindow)
     })
   });
 };
@@ -82,7 +114,7 @@ app.allowRendererProcessReuse = false;
 app.on('ready', createWindow);
 
 app.whenReady().then(() => {
-
+  createServer();
 })
 
 app.on('window-all-closed', () => {
