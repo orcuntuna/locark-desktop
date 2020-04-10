@@ -1,20 +1,20 @@
 <script>
   const { dialog } = require("electron").remote;
+  const { ipcRenderer } = require("electron");
   import FileSend from "./FileSend.svelte";
   import { file_list } from "../store/uploads";
   import { Confirm } from "svelte-confirm";
   import { scale } from "svelte/transition";
   const onClickAddFile = () => {
-    dialog.showOpenDialog(
-      {
+    dialog
+      .showOpenDialog({
         properties: ["openFile", "multiSelections"]
-      },
-      function(files) {
-        if (files !== undefined) {
-          
+      })
+      .then(result => {
+        if (result.filePaths.length) {
+          ipcRenderer.send("add-upload-file", result.filePaths);
         }
-      }
-    );
+      });
   };
 </script>
 
@@ -59,12 +59,12 @@
   }
   .uploads {
     background: #fff;
-    border: 1px solid #ddd;
+    border: 1px solid #eaeaea;
     padding: 20px 15px;
     border-bottom-left-radius: 6px;
     border-bottom-right-radius: 6px;
   }
-  .info{
+  .info {
     margin: 0;
     font-size: 14px;
   }
