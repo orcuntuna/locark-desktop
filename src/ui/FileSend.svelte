@@ -59,11 +59,11 @@
       alt="file-icon" />
     <div>
       <p class="name">{data.name}</p>
-      {#if data.status}
+      {#if data.status == 1}
         <p class="size">{data.size} kb</p>
       {/if}
     </div>
-    {#if data.status}
+    {#if data.status == 1}
       <img class="delete-icon" src="img/close.svg" alt="delete file" />
     {:else}
       <div class="spinner">
