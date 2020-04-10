@@ -4,7 +4,7 @@ const localIpV4Address = require("local-ipv4-address");
 const express = require('express')
 const expressApp = express()
 const fs = require('fs')
-const filesPath = path.join(app.getPath("home"), ".locark/files/")
+const filesPath = path.join(app.getAppPath(), "files/")
 
 require('electron-reload')(__dirname, {
   electron: path.join(__dirname, '../node_modules', '.bin', 'electron'),
@@ -65,6 +65,7 @@ const createServer = () => {
 const copyFiles = async (filesFullPath, window) => {
   await asyncForEach(filesFullPath, async (file) => {
     const { COPYFILE_EXCL } = fs.constants;
+    file = file.replace(/\\/g, "/");
     name = file.split('/')
     name = name[name.length - 1]
     if (checkFile(name)) {
@@ -87,6 +88,18 @@ const checkFile = (name) => {
   } catch (err) {
     return true
   }
+}
+
+const allDeleteFile = () => {
+  fs.readdir(path.join(app.getAppPath(), "files/"), (err, files) => {
+    if (err) throw err;
+  
+    for (const file of files) {
+      fs.unlink(path.join(path.join(app.getAppPath(), "files/"), file), err => {
+        if (err) throw err;
+      });
+    }
+  });
 }
 
 const createWindow = () => {
@@ -114,6 +127,7 @@ app.allowRendererProcessReuse = false;
 app.on('ready', createWindow);
 
 app.whenReady().then(() => {
+  allDeleteFile()
   createServer();
 })
 
