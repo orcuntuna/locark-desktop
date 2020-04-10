@@ -1,8 +1,9 @@
 <script>
   import { status, local_ip, local_pin } from "../store/network";
+  import { file_list } from "../store/uploads";
   import { getNotificationsContext } from "svelte-notifications";
   import { getContext } from "svelte";
-  import Downloads from "./Downloads.svelte";
+  import Uploads from "./Uploads.svelte";
   const { addNotification } = getNotificationsContext();
   import QrCode from "./QrCode.svelte";
   const { open } = getContext("simple-modal");
@@ -14,7 +15,7 @@
 
 <style>
   .box {
-    background: #f9f9f9;
+    background: #F6F6F6;
     flex: 1;
     display: flex;
     justify-content: center;
@@ -48,6 +49,9 @@
     height: 20px;
     cursor: pointer;
   }
+  .form button{
+    background: #FF8364;
+  }
 </style>
 
 <div class="box">
@@ -71,4 +75,5 @@
       </button>
     {/if}
   </div>
+  <Uploads />
 </div>

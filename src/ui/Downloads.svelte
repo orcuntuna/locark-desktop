@@ -81,11 +81,16 @@
       <FileGet data={file_data} />
     {/each}
   </div>
-  <Confirm let:confirm={confirmThis} confirmTitle="End the Connection" cancelTitle="Keep">
-    <p class="cancel" on:click={confirmThis(onClickCancel)}>
+  <Confirm
+    let:confirm={confirmCancel}
+    confirmTitle="End the Connection"
+    cancelTitle="Keep">
+    <p class="cancel" on:click={confirmCancel(onClickCancel)}>
       End the Connection
     </p>
     <span slot="title">Are you sure?</span>
-    <span slot="description">If you confirm the connection will be canceled and the files will be lost.</span>
+    <span slot="description">
+      If you confirm the connection will be canceled and the files will be lost.
+    </span>
   </Confirm>
 </div>

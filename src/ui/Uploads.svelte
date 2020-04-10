@@ -1,0 +1,87 @@
+<script>
+  const { dialog } = require("electron").remote;
+  import FileSend from "./FileSend.svelte";
+  import { file_list } from "../store/uploads";
+  import { Confirm } from "svelte-confirm";
+  import { scale } from "svelte/transition";
+  const onClickAddFile = () => {
+    dialog.showOpenDialog(
+      {
+        properties: ["openFile", "multiSelections"]
+      },
+      function(files) {
+        if (files !== undefined) {
+          
+        }
+      }
+    );
+  };
+</script>
+
+<style>
+  .box {
+    width: 75%;
+    display: flex;
+    flex-direction: column;
+  }
+  .header {
+    height: 50px;
+    background-color: #4d4d4d;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 15px 0 25px;
+    border: none;
+    margin-top: 40px;
+  }
+  .header p {
+    margin: 0;
+    padding: 0;
+    color: #fff;
+    font-weight: 600;
+    font-size: 15px;
+    line-height: 1;
+  }
+  .header button {
+    background: #fff;
+    padding: 5px 12px;
+    border-radius: 6px;
+    color: #333;
+    border: none;
+    font-size: 13px;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  .header button:focus {
+    outline: 0;
+  }
+  .uploads {
+    background: #fff;
+    border: 1px solid #ddd;
+    padding: 20px 15px;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+  }
+  .info{
+    margin: 0;
+    font-size: 14px;
+  }
+</style>
+
+<div class="box" transition:scale>
+  <div class="header">
+    <p>Your shared files</p>
+    <button on:click={onClickAddFile}>Add file</button>
+  </div>
+  <div class="uploads">
+    {#if $file_list.length > 0}
+      {#each $file_list as file}
+        <FileSend data={file} />
+      {/each}
+    {:else}
+      <p class="info">You haven't added a file yet.</p>
+    {/if}
+  </div>
+</div>

@@ -51,7 +51,7 @@
     "sirv-cli": "^0.4.4",
     "svelte-confirm": "0.0.0",
     "svelte-notifications": "^0.9.9",
-    "svelte-simple-modal": "^0.3.0"
+    "svelte-simple-modal": "git+https://git@github.com/orcuntuna/svelte-simple-modal.git"
   },
   "devDependencies": {
     "@electron-forge/cli": "^6.0.0-beta.50",
