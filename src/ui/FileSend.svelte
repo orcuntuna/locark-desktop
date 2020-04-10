@@ -2,8 +2,9 @@
   export let data;
   import file_icon from "../helper/file_icon";
   import { Confirm } from "svelte-confirm";
+  import Spinner from "svelte-spinner";
   const onClickDelete = () => {
-    alert("11");
+    console.log("delete");
   };
 </script>
 
@@ -45,6 +46,9 @@
   img {
     cursor: pointer;
   }
+  .spinner {
+    margin-left: auto;
+  }
 </style>
 
 <Confirm let:confirm={confirmDelete} confirmTitle="Delete" cancelTitle="Cancel">
@@ -55,9 +59,17 @@
       alt="file-icon" />
     <div>
       <p class="name">{data.name}</p>
-      <p class="size">{data.size} kb</p>
+      {#if data.status}
+        <p class="size">{data.size} kb</p>
+      {/if}
     </div>
-    <img class="delete-icon" src="img/close.svg" alt="delete file" />
+    {#if data.status}
+      <img class="delete-icon" src="img/close.svg" alt="delete file" />
+    {:else}
+      <div class="spinner">
+        <Spinner size="24" speed="750" color="#AAA" thickness="2" gap="40" />
+      </div>
+    {/if}
 
   </div>
   <span slot="title">Are you sure?</span>

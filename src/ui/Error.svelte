@@ -1,9 +1,9 @@
 <script>
   import { status, local_ip, local_pin } from "../store/network";
   import { getNotificationsContext } from "svelte-notifications";
+  const { addNotification } = getNotificationsContext();
   import encode_pin from "../helper/encode_pin";
   import validate_ipv4 from "../helper/validate_ipv4";
-  const { addNotification } = getNotificationsContext();
   export let message;
   const { ipcRenderer } = require("electron");
   ipcRenderer.on("network-status", (event, arg) => {

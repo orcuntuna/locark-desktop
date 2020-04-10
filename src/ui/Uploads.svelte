@@ -5,6 +5,8 @@
   import { file_list } from "../store/uploads";
   import { Confirm } from "svelte-confirm";
   import { scale } from "svelte/transition";
+  import { getNotificationsContext } from "svelte-notifications";
+  const { addNotification } = getNotificationsContext();
   const onClickAddFile = () => {
     dialog
       .showOpenDialog({
@@ -13,6 +15,24 @@
       .then(result => {
         if (result.filePaths.length) {
           ipcRenderer.send("add-upload-file", result.filePaths);
+          result.filePaths.forEach(file_path => {
+            file_path = file_path.replace(/\\/g, "/");
+            const parts = file_path.split("/");
+            const file_name = parts[parts.length - 1];
+            const exists = $file_list.filter(file => file.name == file_name);
+            if (exists.length == 0) {
+              file_list.update(files => [
+                ...files,
+                { name: file_name, size: null, status: false }
+              ]);
+            } else {
+              addNotification({
+                text: "file name already exists (" + file_name + ")",
+                type: "danger",
+                position: "bottom-left"
+              });
+            }
+          });
         }
       });
   };
