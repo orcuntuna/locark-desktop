@@ -2,6 +2,7 @@
   export let pin;
   import FileGet from "./FileGet.svelte";
   import { downloads_listing, downloads_data } from "../store/dowloads";
+  import { Confirm } from "svelte-confirm";
   import { scale } from "svelte/transition";
   const onClickCancel = () => {
     console.log("click");
@@ -81,7 +82,11 @@
       <FileGet data={file_data} />
     {/each}
   </div>
-  <p class="cancel" on:click={onClickCancel}>End the Connection</p>
+  <Confirm let:confirm={confirmThis} confirmTitle="End the Connection" cancelTitle="Keep">
+    <p class="cancel" on:click={confirmThis(onClickCancel)}>
+      End the Connection
+    </p>
+    <span slot="title">Are you sure?</span>
+    <span slot="description">If you confirm the connection will be canceled and the files will be lost.</span>
+  </Confirm>
 </div>
-
-

@@ -48,6 +48,7 @@
     "electron-squirrel-startup": "^1.0.0",
     "local-ipv4-address": "0.0.2",
     "sirv-cli": "^0.4.4",
+    "svelte-confirm": "0.0.0",
     "svelte-notifications": "^0.9.9"
   },
   "devDependencies": {
