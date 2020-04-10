@@ -5,7 +5,6 @@
   import { Confirm } from "svelte-confirm";
   import { scale } from "svelte/transition";
   const onClickCancel = () => {
-    console.log("click");
     downloads_listing.set(false);
     downloads_data.set([]);
   };

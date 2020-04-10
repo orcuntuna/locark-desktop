@@ -8,7 +8,7 @@
   const { open } = getContext("simple-modal");
   const showQrCode = event => {
     event.preventDefault();
-    open(QrCode, { code: "12345" });
+    open(QrCode, { code: $local_pin });
   };
 </script>
 
@@ -32,18 +32,18 @@
     font-size: 24px;
     font-weight: 300;
   }
-  form {
+  .form {
     margin-top: 35px;
     display: flex;
     align-items: center;
   }
-  form input {
+  .form input {
     margin-right: 10px;
     text-align: center;
     background: #333;
     color: #fff;
   }
-  form img {
+  .form img {
     width: 20px;
     height: 20px;
     cursor: pointer;
@@ -53,7 +53,7 @@
 <div class="box">
   <h2 class="title">Send Files</h2>
   <h3>to computers or phones</h3>
-  <form>
+  <div class="form">
     <input
       bind:value={$local_pin}
       type="text"
@@ -61,14 +61,14 @@
       class="form-control"
       placeholder="Your PIN"
       required />
-    {#if $local_ip}
-      <button class="btn" on:click={showQrCode}>
+    {#if $local_pin}
+      <button type="button" class="btn" on:click={showQrCode}>
         <img src="img/camera.svg" alt="QR Code" />
       </button>
     {:else}
-      <button class="btn" disabled>
+      <button type="button" class="btn" disabled>
         <img src="img/camera.svg" alt="QR Code" />
       </button>
     {/if}
-  </form>
+  </div>
 </div>
