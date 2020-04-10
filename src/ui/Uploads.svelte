@@ -14,7 +14,6 @@
       })
       .then(result => {
         if (result.filePaths.length) {
-          ipcRenderer.send("add-upload-file", result.filePaths);
           result.filePaths.forEach(file_path => {
             file_path = file_path.replace(/\\/g, "/");
             const parts = file_path.split("/");
@@ -23,7 +22,7 @@
             if (exists.length == 0) {
               file_list.update(files => [
                 ...files,
-                { name: file_name, size: null, status: false }
+                { name: file_name, size: null, status: 0 }
               ]);
             } else {
               addNotification({
@@ -33,9 +32,20 @@
               });
             }
           });
+          ipcRenderer.send("add-upload-file", result.filePaths);
         }
       });
   };
+  ipcRenderer.on("copy-upload-file", (event, args) => {
+    let clone_file_list = JSON.parse(JSON.stringify($file_list));
+    clone_file_list.forEach((item, index) => {
+      if(item.name === args.name){
+        clone_file_list[index].size = args.size;
+        clone_file_list[index].status = args.status;
+        file_list.set(clone_file_list);
+      }
+    })
+  })
 </script>
 
 <style>
