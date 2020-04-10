@@ -1,5 +1,6 @@
 <script>
   import Notifications from "svelte-notifications";
+  import Modal from "svelte-simple-modal";
   import Get from "./Get.svelte";
   import Send from "./Send.svelte";
   import Error from "./Error.svelte";
@@ -13,10 +14,12 @@
   }
 </style>
 
-<Notifications>
-  <div class="page">
-    <Error message={'no network connection available'} />
-    <Get />
-    <Send />
-  </div>
-</Notifications>
+<Modal>
+  <Notifications>
+    <div class="page">
+      <Error message={'no network connection available'} />
+      <Get />
+      <Send />
+    </div>
+  </Notifications>
+</Modal>

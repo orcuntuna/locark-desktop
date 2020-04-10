@@ -38,6 +38,9 @@
     width: 16px;
     height: 16px;
   }
+  img{
+    cursor: pointer;
+  }
 </style>
 
 <div class="item">

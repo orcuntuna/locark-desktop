@@ -6,7 +6,7 @@
   import validate_ipv4 from "../helper/validate_ipv4";
   import Downloads from "./Downloads.svelte";
   const { addNotification } = getNotificationsContext();
-  let pin = "BCFZHK";
+  let pin;
   const formOnSubmit = event => {
     event.preventDefault();
     const target_ip = decode_pin(pin);
