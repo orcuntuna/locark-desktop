@@ -156,7 +156,7 @@ const downloadFile = (data, window) => {
   data.files.forEach(async (file) => {
     let fileName = file.name;
     const filePath = await downloadFilePath(fileName);
-    const fullPath = path.join(app.getAppPath(),filePath)    
+    const fullPath = path.join(app.getAppPath(), filePath)
     const url = "http://" + data.ip + ":" + port + "/" + fileName;
     const writer = fs.createWriteStream(filePath);
     axios({
@@ -165,12 +165,21 @@ const downloadFile = (data, window) => {
       responseType: "stream",
     })
       .then((response) => {
-        response.data.pipe(writer);
-        window.webContents.send("download-file-status", {
-          name: fileName,
-          saved_path: fullPath,
-          status: 2,
-        });
+        response.data
+          .pipe(writer)
+          .on('finish', () => {
+            window.webContents.send("download-file-status", {
+              name: fileName,
+              saved_path: fullPath,
+              status: 2,
+            });
+          })
+          .on('error', () => {
+            window.webContents.send("download-file-status", {
+              name: fileName,
+              status: 3,
+            });
+          });
       })
       .catch((err) => {
         window.webContents.send("download-file-status", {
