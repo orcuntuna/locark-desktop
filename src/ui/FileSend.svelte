@@ -52,10 +52,12 @@
     color: #333;
     font-size: 14px;
     font-weight: 500;
+    cursor: pointer;
   }
   .size {
     color: #666;
     font-size: 12px;
+    cursor: pointer;
   }
   .delete-icon {
     margin-left: auto;
@@ -79,7 +81,7 @@
     <div>
       <p class="name">{data.name}</p>
       {#if data.status == 1}
-        <p class="size">{data.size} kb</p>
+        <p class="size">{(data.size/1048576).toFixed(2)} mb</p>
       {/if}
     </div>
     {#if data.status == 1}
