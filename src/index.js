@@ -53,14 +53,14 @@ const createServer = () => {
   server = expressApp.listen(21249);
 }
 
-const copyFiles = async (filesFullPath, window) => {
-  await asyncForEach(filesFullPath, async (file) => {
+const copyFiles = (filesFullPath, window) => {
+  filesFullPath.forEach((file) => {
     const { COPYFILE_EXCL } = fs.constants;
     file = file.replace(/\\/g, "/");
     name = file.split('/')
     name = name[name.length - 1]
     if (checkFile(name)) {
-      fs.copyFileSync(path.join(file), path.join(app.getAppPath(), "files/", name), COPYFILE_EXCL, (err) => {
+      fs.copyFileSync(path.join(file), path.join(app.getAppPath(), "files/", name), COPYFILE_EXCL, () => {
         window.webContents.send('copy-upload-file', { name, status: 2 })
       });
       const stat = fs.statSync(path.join(file), (err) => {
