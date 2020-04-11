@@ -1,6 +1,6 @@
 <script>
   export let data;
-  const { ipcRenderer } = require("electron");
+  const { ipcRenderer, shell } = require("electron");
   import file_icon from "../helper/file_icon";
   import { target_ip, downloads_data } from "../store/dowloads";
   import Spinner from "svelte-spinner";
@@ -29,7 +29,15 @@
     });
   };
   const openFile = () => {
-    alert("open");
+    if(data.saved_path){
+      shell.openItem(data.saved_path)
+    }else{
+      addNotification({
+        text: "File not found",
+        type: "danger",
+        position: "bottom-left"
+      });
+    }
   };
 </script>
 
