@@ -6,7 +6,9 @@ const expressApp = express();
 const fs = require("fs");
 const axios = require("axios");
 const filesPath = path.join(app.getAppPath(), "files/");
+const filePathJoin = (app.getAppPath(), "files/")
 const downloadPath = path.join(app.getAppPath(), "downloads/");
+const downloadPathJoin = (app.getAppPath(), "downloads/")
 var server;
 const port = 21249;
 
@@ -18,12 +20,6 @@ require("electron-reload")(__dirname, {
 if (require("electron-squirrel-startup")) {
   app.quit();
 }
-
-asyncForEach = async (array, callback) => {
-  for (let index = 0; index < array.length; index++) {
-    await callback(array[index], index, array);
-  }
-};
 
 const checkInternetConnection = (window) => {
   localIpV4Address()
@@ -66,7 +62,7 @@ const copyFiles = (filesFullPath, window) => {
     let name = file.split("/");
     name = name[name.length - 1];
     if (checkFile("files", name)) {
-      fs.copyFile(path.join(file), path.join(app.getAppPath(), "files/", name), COPYFILE_EXCL, (err) => {
+      fs.copyFile(path.join(file), path.join(filePathJoin, name), COPYFILE_EXCL, (err) => {
         if (err) {
           window.webContents.send("copy-upload-file", { name, status: 2 });
         } else {
@@ -95,12 +91,11 @@ const checkFile = async (dir, name) => {
 };
 
 const deleteFiles = () => {
-  fs.readdir(path.join(app.getAppPath(), "files/"), (err, files) => {
+  fs.readdir(filesPath, (err, files) => {
     if (err) throw err;
 
     for (const file of files) {
-      fs.unlinkSync(
-        path.join(path.join(app.getAppPath(), "files/"), file),
+      fs.unlinkSync(path.join(filePathJoin, file),
         (err) => {
           if (err) throw err;
         }
@@ -110,10 +105,10 @@ const deleteFiles = () => {
 };
 
 const deleteFile = (fileName) => {
-  fs.readdir(path.join(app.getAppPath(), "files/"), (err, files) => {
+  fs.readdir(filesPath, (err, files) => {
     if (err) throw err;
     try {
-      fs.unlinkSync(path.join(app.getAppPath(), "files/", fileName));
+      fs.unlinkSync(path.join(filePathJoin, fileName));
     } catch (error) {
       console.log(error);
     }
@@ -140,11 +135,11 @@ const downloadFilePath = async (fileName) => {
         tempFileName =
           fileName.split(".")[0] + "(" + temp + ")" + "." + tempFileExtension;
       } else {
-        return await path.join(app.getAppPath(), "downloads/", tempFileName);
+        return await path.join(downloadPathJoin, tempFileName);
       }
     }
   } else {
-    return await path.join(app.getAppPath(), "downloads/", fileName);
+    return await path.join(downloadPathJoin, fileName);
   }
 };
 
@@ -163,13 +158,13 @@ const downloadFile = (data, window) => {
         window.webContents.send('download-file-status', {
           name: fileName,
           saved_path: filePath,
-          status: 1,
+          status: 2,
         })
       })
       .catch((err) => {
         window.webContents.send('download-file-status', {
           name: fileName,
-          status: 2,
+          status: 3,
         })
       })
   });
