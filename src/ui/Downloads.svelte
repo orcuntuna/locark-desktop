@@ -1,4 +1,7 @@
 <script>
+  const { shell } = require("electron");
+  const app = require("electron").remote.app;
+  const path = require("path");
   export let pin;
   const { ipcRenderer } = require("electron");
   import FileGet from "./FileGet.svelte";
@@ -12,6 +15,9 @@
   const onClickCancel = () => {
     downloads_listing.set(false);
     downloads_data.set([]);
+  };
+  const onClickDownloadsFolder = () => {
+    shell.openItem(path.join(app.getAppPath(), "/downloads"));
   };
   const onClickDownloadAll = () => {
     let clone_downloads_data = JSON.parse(JSON.stringify($downloads_data));
@@ -82,6 +88,12 @@
     font-size: 13px;
     cursor: pointer;
   }
+  .header button img {
+    cursor: pointer;
+  }
+  .header button.folder {
+    background: #666;
+  }
   .header button:focus {
     outline: 0;
   }
@@ -107,7 +119,16 @@
       PIN:
       <span>{pin}</span>
     </p>
-    <button on:click={onClickDownloadAll}>Download All</button>
+    <div>
+      <button title="Open downloads folder" class="folder" on:click={onClickDownloadsFolder}>
+        <img
+          src="img/folder-white.svg"
+          alt="downloads folder"
+          width="14"
+          height="14" />
+      </button>
+      <button on:click={onClickDownloadAll}>Download All</button>
+    </div>
   </div>
   <div class="downloads">
     {#each $downloads_data as file_data}
