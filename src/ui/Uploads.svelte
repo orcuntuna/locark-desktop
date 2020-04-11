@@ -39,13 +39,13 @@
   ipcRenderer.on("copy-upload-file", (event, args) => {
     let clone_file_list = JSON.parse(JSON.stringify($file_list));
     clone_file_list.forEach((item, index) => {
-      if(item.name === args.name){
+      if (item.name === args.name) {
         clone_file_list[index].size = args.size;
         clone_file_list[index].status = args.status;
         file_list.set(clone_file_list);
       }
-    })
-  })
+    });
+  });
 </script>
 
 <style>

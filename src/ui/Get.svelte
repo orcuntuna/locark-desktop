@@ -1,22 +1,27 @@
 <script>
   const { ipcRenderer } = require("electron");
   import { status } from "../store/network";
-  import { downloads_listing, downloads_data } from "../store/dowloads";
+  import {
+    downloads_listing,
+    downloads_data,
+    target_ip
+  } from "../store/dowloads";
   import { getNotificationsContext } from "svelte-notifications";
+  const { addNotification } = getNotificationsContext();
   import decode_pin from "../helper/decode_pin";
   import validate_ipv4 from "../helper/validate_ipv4";
   import Downloads from "./Downloads.svelte";
   import Spinner from "svelte-spinner";
-  const { addNotification } = getNotificationsContext();
   let pin;
   let waiting = false;
   const formOnSubmit = event => {
     event.preventDefault();
     if (waiting === false) {
-      const target_ip = decode_pin(pin);
-      if (validate_ipv4(target_ip)) {
+      const temp_target_ip = decode_pin(pin);
+      if (validate_ipv4(temp_target_ip)) {
         waiting = true;
-        ipcRenderer.send("list-files", target_ip);
+        target_ip.set(temp_target_ip);
+        ipcRenderer.send("list-files", temp_target_ip);
       } else {
         addNotification({
           text: "PIN is wrong",
@@ -35,7 +40,8 @@
   ipcRenderer.on("send-list-file", (event, args) => {
     if (args.success === true) {
       downloads_listing.set(true);
-      downloads_data.set(args.data)
+      downloads_data.set(args.data);
+      waiting = false;
     } else {
       waiting = false;
       addNotification({

@@ -6,9 +6,9 @@ const expressApp = express();
 const fs = require("fs");
 const axios = require("axios");
 const filesPath = path.join(app.getAppPath(), "files/");
-const filePathJoin = (app.getAppPath(), "files/")
+const filePathJoin = (app.getAppPath(), "files/");
 const downloadPath = path.join(app.getAppPath(), "downloads/");
-const downloadPathJoin = (app.getAppPath(), "downloads/")
+const downloadPathJoin = (app.getAppPath(), "downloads/");
 var server;
 const port = 21249;
 
@@ -62,19 +62,30 @@ const copyFiles = (filesFullPath, window) => {
     let name = file.split("/");
     name = name[name.length - 1];
     if (checkFile("files", name)) {
-      fs.copyFile(path.join(file), path.join(filePathJoin, name), COPYFILE_EXCL, (err) => {
-        if (err) {
-          window.webContents.send("copy-upload-file", { name, status: 2 });
-        } else {
-          fs.stat(path.join(file), async (err, stat) => {
-            if (err) {
-              window.webContents.send("copy-upload-file", { name, status: 2, });
-            } else {
-              await window.webContents.send("copy-upload-file", { name, size: stat.size, status: 1, });
-            }
-          });
+      fs.copyFile(
+        path.join(file),
+        path.join(filePathJoin, name),
+        COPYFILE_EXCL,
+        (err) => {
+          if (err) {
+            window.webContents.send("copy-upload-file", { name, status: 2 });
+          } else {
+            fs.stat(path.join(file), async (err, stat) => {
+              if (err) {
+                window.webContents.send("copy-upload-file", {
+                  name,
+                  status: 2,
+                });
+              } else {
+                await window.webContents.send("copy-upload-file", {
+                  name,
+                  size: stat.size,
+                  status: 1,
+                });
+              }
+            });
+          }
         }
-      }
       );
     }
   });
@@ -95,11 +106,9 @@ const deleteFiles = () => {
     if (err) throw err;
 
     for (const file of files) {
-      fs.unlinkSync(path.join(filePathJoin, file),
-        (err) => {
-          if (err) throw err;
-        }
-      );
+      fs.unlinkSync(path.join(filePathJoin, file), (err) => {
+        if (err) throw err;
+      });
     }
   });
 };
@@ -144,7 +153,8 @@ const downloadFilePath = async (fileName) => {
 };
 
 const downloadFile = (data, window) => {
-  data.files.forEach(async (fileName) => {
+  data.files.forEach(async (file) => {
+    let fileName = file.name;
     var filePath = await downloadFilePath(fileName);
     const url = "http://" + data.ip + ":" + port + "/" + fileName;
     const writer = fs.createWriteStream(filePath);
@@ -155,18 +165,18 @@ const downloadFile = (data, window) => {
     })
       .then((response) => {
         response.data.pipe(writer);
-        window.webContents.send('download-file-status', {
+        window.webContents.send("download-file-status", {
           name: fileName,
           saved_path: filePath,
           status: 2,
-        })
+        });
       })
       .catch((err) => {
-        window.webContents.send('download-file-status', {
+        window.webContents.send("download-file-status", {
           name: fileName,
           status: 3,
-        })
-      })
+        });
+      });
   });
 };
 
@@ -211,7 +221,7 @@ const createWindow = () => {
       deleteFile(fileName);
     });
     ipcMain.on("download-file", (event, data) => {
-      downloadFile(data);
+      downloadFile(data, mainWindow);
     });
     ipcMain.on("list-files", (event, ip) => {
       fileList(ip, mainWindow);

@@ -1,13 +1,46 @@
 <script>
   export let pin;
+  const { ipcRenderer } = require("electron");
   import FileGet from "./FileGet.svelte";
-  import { downloads_listing, downloads_data } from "../store/dowloads";
+  import {
+    downloads_listing,
+    downloads_data,
+    target_ip
+  } from "../store/dowloads";
   import { Confirm } from "svelte-confirm";
   import { scale } from "svelte/transition";
   const onClickCancel = () => {
     downloads_listing.set(false);
     downloads_data.set([]);
   };
+  const onClickDownloadAll = () => {
+    let clone_downloads_data = JSON.parse(JSON.stringify($downloads_data));
+    let only_not_downloads = clone_downloads_data.filter(
+      file => file.status === 0
+    );
+    clone_downloads_data.map((item, index) => {
+      if (clone_downloads_data[index].status === 0) {
+        clone_downloads_data[index].status = 1;
+        downloads_data.set(clone_downloads_data);
+      }
+    });
+    ipcRenderer.send("download-file", {
+      ip: $target_ip,
+      files: only_not_downloads
+    });
+  };
+  ipcRenderer.on("download-file-status", (event, args) => {
+    let clone_downloads_data = JSON.parse(JSON.stringify($downloads_data));
+    clone_downloads_data.forEach((item, index) => {
+      if (item.name === args.name) {
+        clone_downloads_data[index].status = args.status;
+        clone_downloads_data[index].saved_path = args.saved_path
+          ? args.saved_path
+          : null;
+        downloads_data.set(clone_downloads_data);
+      }
+    });
+  });
 </script>
 
 <style>
@@ -74,7 +107,7 @@
       PIN:
       <span>{pin}</span>
     </p>
-    <button>Download All</button>
+    <button on:click={onClickDownloadAll}>Download All</button>
   </div>
   <div class="downloads">
     {#each $downloads_data as file_data}
