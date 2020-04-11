@@ -4,8 +4,11 @@ const localIpV4Address = require("local-ipv4-address");
 const express = require('express')
 const expressApp = express()
 const fs = require('fs')
+const axios = require('axios')
 const filesPath = path.join(app.getAppPath(), "files/")
+const downloadPath = path.join(app.getAppPath(), "downloads/")
 var server;
+const port = 21249
 
 require('electron-reload')(__dirname, {
   electron: path.join(__dirname, '../node_modules', '.bin', 'electron'),
@@ -50,31 +53,38 @@ const createServer = () => {
       responseFiles
     )
   })
-  server = expressApp.listen(21249);
+  server = expressApp.listen(port);
 }
 
 const copyFiles = (filesFullPath, window) => {
   filesFullPath.forEach((file) => {
     const { COPYFILE_EXCL } = fs.constants;
     file = file.replace(/\\/g, "/");
-    name = file.split('/')
-    name = name[name.length - 1]
-    if (checkFile(name)) {
-      fs.copyFileSync(path.join(file), path.join(app.getAppPath(), "files/", name), COPYFILE_EXCL, () => {
-        window.webContents.send('copy-upload-file', { name, status: 2 })
-      });
-      const stat = fs.statSync(path.join(file), (err) => {
-        window.webContents.send('copy-upload-file', { name, size: stat.size, status: 2 })
-      })
-      window.webContents.send('copy-upload-file', { name, size: stat.size, status: 1 })
+    name = file.split("/");
+    name = name[name.length - 1];
+    if (checkFile("files", name)) {
+      fs.copyFile(path.join(file), path.join(app.getAppPath(), "files/", name), COPYFILE_EXCL, (err) => {
+        if (err) {
+          window.webContents.send("copy-upload-file", { name, status: 2 });
+        } else {
+          fs.stat(path.join(file), (err, stat) => {
+            if (err) {
+              window.webContents.send("copy-upload-file", { name, status: 2, });
+            } else {
+              window.webContents.send("copy-upload-file", { name, size: stat.size, status: 1, });
+            }
+          });
+        }
+      }
+      );
     }
-  })
-}
+  });
+};
 
-const checkFile = (name) => {
-  staticPath = path.join(app.getAppPath(), "files/", name)
+const checkFile = async (dir, name) => {
+  staticPath = path.join(app.getAppPath(), dir, "/", name)
   try {
-    fs.accessSync(staticPath, fs.constants.F_OK | fs.constants.W_OK);
+    await fs.accessSync(staticPath, fs.constants.F_OK | fs.constants.W_OK);
     return false
   } catch (err) {
     return true
@@ -108,6 +118,56 @@ const fileExists = () => {
   if (!fs.existsSync(filesPath)) {
     fs.mkdirSync(filesPath);
   }
+  if (!fs.existsSync(downloadPath)) {
+    fs.mkdirSync(downloadPath);
+  }
+}
+
+const downloadFilePath = async (fileName) => {
+  if (!await checkFile("download", fileName)) {
+    let temp = 0
+    let tempFileName = fileName
+    let tempFileExtension = fileName.split(".")[1]
+    while (true) {
+      temp++
+      if (!await checkFile("download", tempFileName)) {
+        tempFileName = fileName.split(".")[0] + "(" + temp + ")" + "." + tempFileExtension
+      } else {
+        return await path.join(app.getAppPath(), "download/", tempFileName)
+      }
+    }
+  } else {
+    return await path.join(app.getAppPath(), "download/", fileName)
+  }
+
+}
+
+const downloadFile = (data) => {
+  data.files.forEach(async (fileName) => {
+    var filePath = await downloadFilePath(fileName)
+    const url = 'http://' + data.ip + ':' + port + '/' + fileName;
+    const writer = fs.createWriteStream(filePath)
+    try {
+      const response = await axios({
+        url,
+        method: 'GET',
+        responseType: 'stream'
+      })
+      response.data.pipe(writer)
+    } catch (error) {
+    }
+  })
+}
+
+const fileList = (ip, window) => {
+  url = 'http://' + ip + ':' + port + "/files"
+  axios.get(url)
+    .then((response) => {
+      window.webContents.send("send-list-file", { list: response.data, status: 1 });
+    })
+    .catch((error) => {
+      window.webContents.send("send-list-file", { errMessage: "Link not reached. Please check link", status: 2 });
+    })
 }
 
 const createWindow = () => {
@@ -121,7 +181,7 @@ const createWindow = () => {
   mainWindow.loadFile(path.join(__dirname, '../public/index.html'));
   mainWindow.webContents.on('did-finish-load', () => {
     ipcMain.removeAllListeners()
-    deleteFiles()
+    // deleteFiles()
     checkInternetConnection(mainWindow);
     ipcMain.on('network-status-check', () => {
       checkInternetConnection(mainWindow);
@@ -131,6 +191,12 @@ const createWindow = () => {
     })
     ipcMain.on('delete-upload-file', (event, fileName) => {
       deleteFile(fileName)
+    })
+    ipcMain.on('download-file', (event, data) => {
+      downloadFile(data)
+    })
+    ipcMain.on('list-files', (event, ip) => {
+      fileList(ip, mainWindow)
     })
   });
 };
