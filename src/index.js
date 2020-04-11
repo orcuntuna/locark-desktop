@@ -144,18 +144,19 @@ const downloadFilePath = async (fileName) => {
         tempFileName =
           fileName.split(".")[0] + "(" + temp + ")" + "." + tempFileExtension;
       } else {
-        return await path.join(downloadPathJoin, tempFileName);
+        return path.join(downloadPathJoin, tempFileName);
       }
     }
   } else {
-    return await path.join(downloadPathJoin, fileName);
+    return path.join(downloadPathJoin, fileName);
   }
 };
 
 const downloadFile = (data, window) => {
   data.files.forEach(async (file) => {
     let fileName = file.name;
-    var filePath = await downloadFilePath(fileName);
+    const filePath = await downloadFilePath(fileName);
+    const fullPath = path.join(app.getAppPath(),filePath)    
     const url = "http://" + data.ip + ":" + port + "/" + fileName;
     const writer = fs.createWriteStream(filePath);
     axios({
@@ -167,7 +168,7 @@ const downloadFile = (data, window) => {
         response.data.pipe(writer);
         window.webContents.send("download-file-status", {
           name: fileName,
-          saved_path: filePath,
+          saved_path: fullPath,
           status: 2,
         });
       })

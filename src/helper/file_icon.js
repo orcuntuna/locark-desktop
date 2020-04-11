@@ -5,6 +5,7 @@ export default function (file_name) {
     txt: "txt.svg",
     pdf: "pdf.svg",
     html: "html.svg",
+    AEP: "after-effects.svg"
   };
   return available_extentions[extention]
     ? available_extentions[extention]
