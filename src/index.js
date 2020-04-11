@@ -5,6 +5,7 @@ const express = require('express')
 const expressApp = express()
 const fs = require('fs')
 const filesPath = path.join(app.getAppPath(), "files/")
+var server;
 
 require('electron-reload')(__dirname, {
   electron: path.join(__dirname, '../node_modules', '.bin', 'electron'),
@@ -59,7 +60,7 @@ const createServer = () => {
       }
     })
   })
-  expressApp.listen(21249);
+  server = expressApp.listen(21249);
 }
 
 const copyFiles = async (filesFullPath, window) => {
@@ -90,14 +91,25 @@ const checkFile = (name) => {
   }
 }
 
-const allDeleteFile = () => {
-  fs.readdir(path.join(app.getAppPath(), "files/"), (err, files) => {
+const deleteFiles = () => {
+  fs.readdirSync(path.join(app.getAppPath(), "files/"), (err, files) => {
     if (err) throw err;
-  
+
     for (const file of files) {
-      fs.unlink(path.join(path.join(app.getAppPath(), "files/"), file), err => {
+      fs.unlinkSync(path.join(path.join(app.getAppPath(), "files/"), file), err => {
         if (err) throw err;
       });
+    }
+  });
+}
+
+const deleteFile = (fileName) => {
+  fs.readdir(path.join(app.getAppPath(), "files/"), (err, files) => {
+    if (err) throw err
+    try {
+      fs.unlinkSync(path.join(app.getAppPath(), "files/", fileName))
+    } catch (error) {
+      console.log(error);
     }
   });
 }
@@ -119,6 +131,9 @@ const createWindow = () => {
     ipcMain.on('add-upload-file', (event, filesPath) => {
       copyFiles(filesPath, mainWindow)
     })
+    ipcMain.on('delete-upload-file', (event, fileName) => {
+      deleteFile(fileName)
+    })
   });
 };
 
@@ -127,13 +142,14 @@ app.allowRendererProcessReuse = false;
 app.on('ready', createWindow);
 
 app.whenReady().then(() => {
-  allDeleteFile()
+  deleteFiles()
   createServer();
 })
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
+    server.close()
   }
 });
 
