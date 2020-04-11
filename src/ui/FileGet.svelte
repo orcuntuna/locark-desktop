@@ -23,6 +23,7 @@
     let clone_downloads_data = JSON.parse(JSON.stringify($downloads_data));
     clone_downloads_data.map((item, index) => {
       if (clone_downloads_data[index].name === data.name) {
+        clone_downloads_data[index].status = 1;
         downloads_data.set(clone_downloads_data);
         ipcRenderer.send("download-file", { ip: $target_ip, files: [data] });
       }
