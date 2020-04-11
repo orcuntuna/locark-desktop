@@ -33,32 +33,22 @@ const checkInternetConnection = (window) => {
 const createServer = () => {
   expressApp.use(express.static(filesPath))
   expressApp.get('/files', (req, res) => {
-    fs.readdir(filesPath, async (err, files) => {
-      if (err) {
-        console.log("Error getting directory information.")
-        res.sendStatus(403)
-      } else {
-        const responseFiles = []
-        if (files.length > 0) {
-          files.forEach((file, key) => {
-            fs.stat(filesPath + file, (err, stat) => {
-              if (stat.isFile()) {
-                responseFiles.push({ name: files[key], size: stat.size })
-                if (files.length == (key + 1)) {
-                  res.json(
-                    responseFiles
-                  )
-                }
-              }
-            })
-          })
-        } else {
-          res.json(
-            []
-          )
+    const responseFiles = [];
+    try {
+      filesName = fs.readdirSync(filesPath)
+      filesName.forEach(async (file) => {
+        stat = fs.statSync(filesPath + file)
+        if (stat.isFile()) {
+          await responseFiles.push({ name: file, size: stat.size })
         }
-      }
-    })
+      })
+    } catch (error) {
+      console.log("Error getting directory information.")
+      res.sendStatus(403)
+    }
+    res.json(
+      responseFiles
+    )
   })
   server = expressApp.listen(21249);
 }
@@ -114,6 +104,12 @@ const deleteFile = (fileName) => {
   });
 }
 
+const fileExists = () => {
+  if (!fs.existsSync(filesPath)) {
+    fs.mkdirSync(filesPath);
+  }
+}
+
 const createWindow = () => {
   const mainWindow = new BrowserWindow({
     width: 800,
@@ -124,6 +120,8 @@ const createWindow = () => {
   });
   mainWindow.loadFile(path.join(__dirname, '../public/index.html'));
   mainWindow.webContents.on('did-finish-load', () => {
+    ipcMain.removeAllListeners()
+    deleteFiles()
     checkInternetConnection(mainWindow);
     ipcMain.on('network-status-check', () => {
       checkInternetConnection(mainWindow);
@@ -142,8 +140,9 @@ app.allowRendererProcessReuse = false;
 app.on('ready', createWindow);
 
 app.whenReady().then(() => {
+  fileExists()
   deleteFiles()
-  createServer();
+  createServer()
 })
 
 app.on('window-all-closed', () => {
