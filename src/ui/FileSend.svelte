@@ -1,10 +1,29 @@
 <script>
   export let data;
   import file_icon from "../helper/file_icon";
+  const { ipcRenderer } = require("electron");
+  import { file_list } from "../store/uploads";
   import { Confirm } from "svelte-confirm";
   import Spinner from "svelte-spinner";
+  import { getNotificationsContext } from "svelte-notifications";
+  const { addNotification } = getNotificationsContext();
   const onClickDelete = () => {
-    console.log("delete");
+    if (data.status === 1) {
+      ipcRenderer.send("delete-upload-file", data.name);
+      let clone_file_list = JSON.parse(JSON.stringify($file_list));
+      clone_file_list.forEach((item, index) => {
+        if (item.name === data.name) {
+          clone_file_list.splice(index, 1);
+        }
+      });
+      file_list.set(clone_file_list);
+    } else {
+      addNotification({
+        text: "Wait until the file is uploaded",
+        type: "warning",
+        position: "bottom-left"
+      });
+    }
   };
 </script>
 
