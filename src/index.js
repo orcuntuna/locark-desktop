@@ -47,7 +47,7 @@ const createServer = () => {
       filesName.forEach(async (file) => {
         stat = fs.statSync(filesPath + file);
         if (stat.isFile()) {
-          await responseFiles.push({ name: file, size: stat.size });
+          await responseFiles.push({ name: file, size: stat.size, status: 0 });
         }
       });
     } catch (error) {
@@ -63,33 +63,22 @@ const copyFiles = (filesFullPath, window) => {
   filesFullPath.forEach((file) => {
     const { COPYFILE_EXCL } = fs.constants;
     file = file.replace(/\\/g, "/");
-    name = file.split("/");
+    let name = file.split("/");
     name = name[name.length - 1];
     if (checkFile("files", name)) {
-      fs.copyFile(
-        path.join(file),
-        path.join(app.getAppPath(), "files/", name),
-        COPYFILE_EXCL,
-        (err) => {
-          if (err) {
-            window.webContents.send("copy-upload-file", { name, status: 2 });
-          } else {
-            fs.stat(path.join(file), (err, stat) => {
-              if (err) {
-                window.webContents.send("copy-upload-file", {
-                  name,
-                  status: 2,
-                });
-              } else {
-                window.webContents.send("copy-upload-file", {
-                  name,
-                  size: stat.size,
-                  status: 1,
-                });
-              }
-            });
-          }
+      fs.copyFile(path.join(file), path.join(app.getAppPath(), "files/", name), COPYFILE_EXCL, (err) => {
+        if (err) {
+          window.webContents.send("copy-upload-file", { name, status: 2 });
+        } else {
+          fs.stat(path.join(file), async (err, stat) => {
+            if (err) {
+              window.webContents.send("copy-upload-file", { name, status: 2, });
+            } else {
+              await window.webContents.send("copy-upload-file", { name, size: stat.size, status: 1, });
+            }
+          });
         }
+      }
       );
     }
   });
@@ -159,19 +148,30 @@ const downloadFilePath = async (fileName) => {
   }
 };
 
-const downloadFile = (data) => {
+const downloadFile = (data, window) => {
   data.files.forEach(async (fileName) => {
     var filePath = await downloadFilePath(fileName);
     const url = "http://" + data.ip + ":" + port + "/" + fileName;
     const writer = fs.createWriteStream(filePath);
-    try {
-      const response = await axios({
-        url,
-        method: "GET",
-        responseType: "stream",
-      });
-      response.data.pipe(writer);
-    } catch (error) {}
+    axios({
+      url,
+      method: "GET",
+      responseType: "stream",
+    })
+      .then((response) => {
+        response.data.pipe(writer);
+        window.webContents.send('download-file-status', {
+          name: fileName,
+          saved_path: filePath,
+          status: 1,
+        })
+      })
+      .catch((err) => {
+        window.webContents.send('download-file-status', {
+          name: fileName,
+          status: 2,
+        })
+      })
   });
 };
 
