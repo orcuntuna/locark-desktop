@@ -92,7 +92,7 @@ const checkFile = (name) => {
 }
 
 const deleteFiles = () => {
-  fs.readdirSync(path.join(app.getAppPath(), "files/"), (err, files) => {
+  fs.readdir(path.join(app.getAppPath(), "files/"), (err, files) => {
     if (err) throw err;
 
     for (const file of files) {
@@ -150,6 +150,7 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
     server.close()
+    deleteFiles()
   }
 });
 
