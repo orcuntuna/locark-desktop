@@ -1,39 +1,50 @@
 <script>
+  const { ipcRenderer } = require("electron");
   import { status } from "../store/network";
   import { downloads_listing, downloads_data } from "../store/dowloads";
   import { getNotificationsContext } from "svelte-notifications";
   import decode_pin from "../helper/decode_pin";
   import validate_ipv4 from "../helper/validate_ipv4";
   import Downloads from "./Downloads.svelte";
+  import Spinner from "svelte-spinner";
   const { addNotification } = getNotificationsContext();
   let pin;
+  let waiting = false;
   const formOnSubmit = event => {
     event.preventDefault();
-    const target_ip = decode_pin(pin);
-    if (validate_ipv4(target_ip)) {
-      downloads_listing.set(true);
-      downloads_data.set([
-        {
-          name: "kaynaklar.txt",
-          size: 12
-        },
-        {
-          name: "Kitap.pdf",
-          size: 832
-        },
-        {
-          name: "Kitap.html",
-          size: 730
-        }
-      ]);
+    if (waiting === false) {
+      const target_ip = decode_pin(pin);
+      if (validate_ipv4(target_ip)) {
+        waiting = true;
+        ipcRenderer.send("list-files", target_ip);
+      } else {
+        addNotification({
+          text: "PIN is wrong",
+          type: "danger",
+          position: "bottom-left"
+        });
+      }
     } else {
       addNotification({
-        text: "PIN is wrong",
-        type: "danger",
+        text: "Please wait, loading",
+        type: "warning",
         position: "bottom-left"
       });
     }
   };
+  ipcRenderer.on("send-list-file", (event, args) => {
+    if (args.success === true) {
+      downloads_listing.set(true);
+      downloads_data.set(args.data)
+    } else {
+      waiting = false;
+      addNotification({
+        text: "Connection could not be established",
+        type: "danger",
+        position: "bottom-left"
+      });
+    }
+  });
 </script>
 
 <style>
@@ -81,7 +92,18 @@
         placeholder="Connection PIN"
         required />
       {#if $status == 'online'}
-        <button class="btn">Connect</button>
+        {#if waiting}
+          <button class="btn">
+            <Spinner
+              size="24"
+              speed="750"
+              color="#AAA"
+              thickness="2"
+              gap="40" />
+          </button>
+        {:else}
+          <button class="btn">Connect</button>
+        {/if}
       {:else}
         <button class="btn" disabled>Connect</button>
       {/if}
