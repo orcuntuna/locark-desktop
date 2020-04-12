@@ -14,3 +14,37 @@ body {
 input, button, textarea, :focus {
     outline: none;
 }
+
+.scrollbar::-webkit-scrollbar{
+  width: 4px;
+  height: 4px;
+}
+.scrollbar::-webkit-scrollbar-button{
+  width: 0px;
+  height: 0px;
+}
+.scrollbar::-webkit-scrollbar-thumb{
+  background: #ccc;
+  border: 0px none #ffffff;
+  border-radius: 50px;
+}
+.scrollbar::-webkit-scrollbar-thumb:hover{
+  background: #ccc;
+}
+.scrollbar::-webkit-scrollbar-thumb:active{
+  background: #000000;
+}
+.scrollbar::-webkit-scrollbar-track{
+  background: #eee;
+  border: 0px none #ffffff;
+  border-radius: 50px;
+}
+.scrollbar::-webkit-scrollbar-track:hover{
+  background: #eee;
+}
+.scrollbar::-webkit-scrollbar-track:active{
+  background: #eee;
+}
+.scrollbar::-webkit-scrollbar-corner{
+  background: transparent;
+}

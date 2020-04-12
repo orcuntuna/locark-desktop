@@ -24,6 +24,7 @@
                 ...files,
                 { name: file_name, size: null, status: 0 }
               ]);
+              ipcRenderer.send("add-upload-file", [file_path]);
             } else {
               addNotification({
                 text: "file name already exists (" + file_name + ")",
@@ -32,7 +33,6 @@
               });
             }
           });
-          ipcRenderer.send("add-upload-file", result.filePaths);
         }
       });
   };
@@ -93,6 +93,8 @@
     padding: 20px 15px;
     border-bottom-left-radius: 6px;
     border-bottom-right-radius: 6px;
+    overflow-y: auto;
+    max-height: 230px;
   }
   .info {
     margin: 0;
@@ -105,7 +107,7 @@
     <p>Your shared files</p>
     <button on:click={onClickAddFile}>Add file</button>
   </div>
-  <div class="uploads">
+  <div class="uploads scrollbar">
     {#if $file_list.length > 0}
       {#each $file_list as file}
         <FileSend data={file} />

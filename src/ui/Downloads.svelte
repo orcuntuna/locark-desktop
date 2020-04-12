@@ -103,6 +103,8 @@
     padding: 20px 15px;
     border-bottom-left-radius: 6px;
     border-bottom-right-radius: 6px;
+    overflow-y: auto;
+    max-height: 230px;
   }
   .cancel {
     color: #fff;
@@ -130,7 +132,7 @@
       <button on:click={onClickDownloadAll}>Download All</button>
     </div>
   </div>
-  <div class="downloads">
+  <div class="downloads scrollbar">
     {#each $downloads_data as file_data}
       <FileGet data={file_data} />
     {/each}
