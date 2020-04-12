@@ -113,6 +113,11 @@
     cursor: pointer;
     margin: 20px 0 0;
   }
+  .info {
+    margin: 0;
+    font-size: 14px;
+    color: #333;
+  }
 </style>
 
 <div class="box" transition:scale>
@@ -122,7 +127,10 @@
       <span>{pin}</span>
     </p>
     <div>
-      <button title="Open downloads folder" class="folder" on:click={onClickDownloadsFolder}>
+      <button
+        title="Open downloads folder"
+        class="folder"
+        on:click={onClickDownloadsFolder}>
         <img
           src="img/folder-white.svg"
           alt="downloads folder"
@@ -133,9 +141,13 @@
     </div>
   </div>
   <div class="downloads scrollbar">
-    {#each $downloads_data as file_data}
-      <FileGet data={file_data} />
-    {/each}
+    {#if $downloads_data.length > 0}
+      {#each $downloads_data as file_data}
+        <FileGet data={file_data} />
+      {/each}
+    {:else}
+      <p class="info">No files are shared.</p>
+    {/if}
   </div>
   <Confirm
     let:confirm={confirmCancel}

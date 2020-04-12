@@ -82,6 +82,11 @@
     margin-right: 10px;
     text-align: center;
   }
+  p.info{
+    color: #EEE;
+    margin-top: 35px;
+    font-size: 14px;
+  }
 </style>
 
 <div class="box">
@@ -114,5 +119,6 @@
         <button class="btn" disabled>Connect</button>
       {/if}
     </form>
+    <p class="info">To transfer files, you must be connected to the same network.</p>
   {/if}
 </div>
