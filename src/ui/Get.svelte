@@ -86,6 +86,9 @@
     color: #EEE;
     margin-top: 35px;
     font-size: 14px;
+    text-align: center;
+    padding-left: 25px;
+    padding-right: 25px;
   }
 </style>
 

@@ -47,6 +47,9 @@
       }
     });
   });
+  function refreshConnection(){
+    ipcRenderer.send("list-files", $target_ip);
+  }
 </script>
 
 <style>
@@ -91,8 +94,9 @@
   .header button img {
     cursor: pointer;
   }
-  .header button.folder {
+  .header button.icon-button {
     background: #666;
+    padding: 5px 10px;
   }
   .header button:focus {
     outline: 0;
@@ -128,8 +132,18 @@
     </p>
     <div>
       <button
+        title="Refresh Connection"
+        class="icon-button"
+        on:click={refreshConnection}>
+        <img
+          src="img/refresh.svg"
+          alt="refresh connection"
+          width="14"
+          height="14" />
+      </button>
+      <button
         title="Open downloads folder"
-        class="folder"
+        class="icon-button"
         on:click={onClickDownloadsFolder}>
         <img
           src="img/folder-white.svg"

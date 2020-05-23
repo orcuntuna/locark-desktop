@@ -104,7 +104,6 @@ const checkFile = async (dir, name) => {
 const deleteFiles = () => {
   fs.readdir(filesPath, (err, files) => {
     if (err) throw err;
-
     for (const file of files) {
       fs.unlinkSync(path.join(filePathJoin, file), (err) => {
         if (err) throw err;
@@ -156,7 +155,7 @@ const downloadFile = (data, window) => {
   data.files.forEach(async (file) => {
     let fileName = file.name;
     const filePath = await downloadFilePath(fileName);
-    const fullPath = path.join(app.getAppPath(), filePath)
+    const fullPath = path.join(app.getAppPath(), filePath);
     const url = "http://" + data.ip + ":" + port + "/" + fileName;
     const writer = fs.createWriteStream(filePath);
     axios({
@@ -167,14 +166,14 @@ const downloadFile = (data, window) => {
       .then((response) => {
         response.data
           .pipe(writer)
-          .on('finish', () => {
+          .on("finish", () => {
             window.webContents.send("download-file-status", {
               name: fileName,
               saved_path: fullPath,
               status: 2,
             });
           })
-          .on('error', () => {
+          .on("error", () => {
             window.webContents.send("download-file-status", {
               name: fileName,
               status: 3,
@@ -215,7 +214,10 @@ const createWindow = () => {
     webPreferences: {
       nodeIntegration: true,
     },
+    show: false
   });
+  mainWindow.maximize()
+  mainWindow.show()
   mainWindow.loadFile(path.join(__dirname, "../public/index.html"));
   mainWindow.webContents.on("did-finish-load", () => {
     ipcMain.removeAllListeners();
