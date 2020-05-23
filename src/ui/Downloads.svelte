@@ -47,7 +47,7 @@
       }
     });
   });
-  function refreshConnection(){
+  function refreshConnection() {
     ipcRenderer.send("list-files", $target_ip);
   }
 </script>
@@ -131,16 +131,26 @@
       <span>{pin}</span>
     </p>
     <div>
-      <button
-        title="Refresh Connection"
-        class="icon-button"
-        on:click={refreshConnection}>
-        <img
-          src="img/refresh.svg"
-          alt="refresh connection"
-          width="14"
-          height="14" />
-      </button>
+      <Confirm
+        let:confirm={confirmRefresh}
+        confirmTitle="Refresh Connection"
+        cancelTitle="Keep">
+        <button
+          title="Refresh Connection"
+          class="icon-button"
+          on:click={confirmRefresh(refreshConnection)}>
+          <img
+            src="img/refresh.svg"
+            alt="refresh connection"
+            width="14"
+            height="14" />
+        </button>
+        <span slot="title">Are you sure?</span>
+        <span slot="description">
+          If you confirm the connection will be canceled and the files will be
+          lost.
+        </span>
+      </Confirm>
       <button
         title="Open downloads folder"
         class="icon-button"
