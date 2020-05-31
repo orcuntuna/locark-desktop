@@ -23,7 +23,7 @@ export default function (file_name) {
     indl: "indesign.svg",
     iso: "iso.svg",
     js: "javascript.svg",
-    jpg: "jpg:svg",
+    jpg: "jpg.svg",
     json: "json-file.svg",
     mp3: "mp3.svg",
     mp4: "mp4.svg",
