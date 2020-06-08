@@ -11,7 +11,8 @@
     "publish": "electron-forge publish",
     "svelte-build": "rollup -c",
     "svelte-dev": "rollup -c -w",
-    "svelte-start": "sirv public"
+    "svelte-start": "sirv public",
+    "test": "jest"
   },
   "keywords": [],
   "author": "orcuntuna",
@@ -57,6 +58,8 @@
     "svelte-spinner": "^2.0.2"
   },
   "devDependencies": {
+    "@babel/core": "^7.10.2",
+    "@babel/preset-env": "^7.10.2",
     "@electron-forge/cli": "^6.0.0-beta.50",
     "@electron-forge/maker-deb": "^6.0.0-beta.50",
     "@electron-forge/maker-rpm": "^6.0.0-beta.50",
@@ -64,8 +67,10 @@
     "@electron-forge/maker-zip": "^6.0.0-beta.50",
     "@rollup/plugin-commonjs": "^11.0.0",
     "@rollup/plugin-node-resolve": "^7.0.0",
+    "babel-jest": "^26.0.1",
     "concurrently": "^5.1.0",
     "electron": "8.0.2",
+    "jest": "^26.0.1",
     "rollup": "^1.32.0",
     "rollup-plugin-livereload": "^1.0.0",
     "rollup-plugin-svelte": "^5.0.3",
