@@ -1,14 +1,12 @@
-const { app, BrowserWindow, ipcMain, ipcRenderer } = require("electron");
+const { app, BrowserWindow, ipcMain, ipcRenderer, dialog } = require("electron");
 const path = require("path");
 const localIpV4Address = require("local-ipv4-address");
 const express = require("express");
 const expressApp = express();
 const fs = require("fs");
 const axios = require("axios");
-const filesPath = path.join(app.getAppPath(), "files/");
-const filePathJoin = (app.getAppPath(), "files/");
-const downloadPath = path.join(app.getAppPath(), "downloads/");
-const downloadPathJoin = (app.getAppPath(), "downloads/");
+const filesPath = path.join(app.getPath("home"), "files/");
+const downloadsPath = path.join(app.getPath("home"), "Downloads/");
 var server;
 const port = 21249;
 
@@ -64,7 +62,7 @@ const copyFiles = (filesFullPath, window) => {
     if (checkFile("files", name)) {
       fs.copyFile(
         path.join(file),
-        path.join(filePathJoin, name),
+        path.join(filesPath, name),
         COPYFILE_EXCL,
         (err) => {
           if (err) {
@@ -92,7 +90,7 @@ const copyFiles = (filesFullPath, window) => {
 };
 
 const checkFile = async (dir, name) => {
-  staticPath = path.join(app.getAppPath(), dir, "/", name);
+  staticPath = path.join(app.getPath("home"), dir, "/", name);
   try {
     await fs.accessSync(staticPath, fs.constants.F_OK | fs.constants.W_OK);
     return false;
@@ -105,7 +103,7 @@ const deleteFiles = () => {
   fs.readdir(filesPath, (err, files) => {
     if (err) throw err;
     for (const file of files) {
-      fs.unlinkSync(path.join(filePathJoin, file), (err) => {
+      fs.unlinkSync(path.join(filesPath, file), (err) => {
         if (err) throw err;
       });
     }
@@ -116,7 +114,7 @@ const deleteFile = (fileName) => {
   fs.readdir(filesPath, (err, files) => {
     if (err) throw err;
     try {
-      fs.unlinkSync(path.join(filePathJoin, fileName));
+      fs.unlinkSync(path.join(filesPath, fileName));
     } catch (error) {
       console.log(error);
     }
@@ -127,8 +125,8 @@ const fileExists = () => {
   if (!fs.existsSync(filesPath)) {
     fs.mkdirSync(filesPath);
   }
-  if (!fs.existsSync(downloadPath)) {
-    fs.mkdirSync(downloadPath);
+  if (!fs.existsSync(downloadsPath)) {
+    fs.mkdirSync(downloadsPath);
   }
 };
 
@@ -143,19 +141,19 @@ const downloadFilePath = async (fileName) => {
         tempFileName =
           fileName.split(".")[0] + "(" + temp + ")" + "." + tempFileExtension;
       } else {
-        return path.join(downloadPathJoin, tempFileName);
+        return path.join(downloadsPath, tempFileName);
       }
     }
   } else {
-    return path.join(downloadPathJoin, fileName);
+    return path.join(downloadsPath, fileName);
   }
+
 };
 
 const downloadFile = (data, window) => {
   data.files.forEach(async (file) => {
     let fileName = file.name;
     const filePath = await downloadFilePath(fileName);
-    const fullPath = path.join(app.getAppPath(), filePath);
     const url = "http://" + data.ip + ":" + port + "/" + fileName;
     const writer = fs.createWriteStream(filePath);
     axios({
@@ -169,7 +167,7 @@ const downloadFile = (data, window) => {
           .on("finish", () => {
             window.webContents.send("download-file-status", {
               name: fileName,
-              saved_path: fullPath,
+              saved_path: filePath,
               status: 2,
             });
           })
