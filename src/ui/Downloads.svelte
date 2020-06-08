@@ -17,7 +17,7 @@
     downloads_data.set([]);
   };
   const onClickDownloadsFolder = () => {
-    shell.openItem(path.join(app.getAppPath(), "/downloads"));
+    shell.openItem(path.join(app.getPath("home"), "/Downloads"));
   };
   const onClickDownloadAll = () => {
     let clone_downloads_data = JSON.parse(JSON.stringify($downloads_data));
