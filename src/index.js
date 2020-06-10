@@ -1,9 +1,8 @@
-const { app, BrowserWindow, ipcMain, ipcRenderer, dialog } = require("electron");
+const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
-const { checkInternetConnection, createServer, fileList } = require("./helper/server_operation");
-const { copyFiles, deleteFiles, deleteFile, fileExists, downloadFile } = require("./helper/file_operations")
+const { checkInternetConnection, createServer } = require("./helper/server_operation");
+const { copyFiles, deleteFiles, deleteFile, fileExists, downloadFile, fileList } = require("./helper/file_operations")
 var server;
-const port = 21249;
 
 require("electron-reload")(__dirname, {
   electron: path.join(__dirname, "../node_modules", ".bin", "electron"),

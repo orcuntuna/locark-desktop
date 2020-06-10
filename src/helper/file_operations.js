@@ -56,10 +56,11 @@ const checkFile = async (dir, name) => {
 
 const deleteFiles = () => {
   fs.readdir(filesPath, (err, files) => {
-    if (err) throw err;
+    if (err) return false;
     for (const file of files) {
       fs.unlinkSync(path.join(filesPath, file), (err) => {
-        if (err) throw err;
+        if (err) return false;
+        return true;
       });
     }
   });
@@ -67,11 +68,12 @@ const deleteFiles = () => {
 
 const deleteFile = (fileName) => {
   fs.readdir(filesPath, (err, files) => {
-    if (err) throw err;
+    if (err) return false;
     try {
       fs.unlinkSync(path.join(filesPath, fileName));
+      return true;
     } catch (error) {
-      console.log(error);
+      return false;
     }
   });
 };
@@ -143,4 +145,22 @@ const downloadFile = (data, window) => {
   });
 };
 
-module.exports = { copyFiles, deleteFiles, deleteFile, fileExists, downloadFile }
+const fileList = (ip, window) => {
+  url = "http://" + ip + ":" + port + "/files";
+  axios
+    .get(url)
+    .then((response) => {
+      window.webContents.send("send-list-file", {
+        success: true,
+        data: response.data,
+      });
+    })
+    .catch((error) => {
+      window.webContents.send("send-list-file", {
+        success: false,
+        error: "Link not reached. Please check link",
+      });
+    });
+};
+
+module.exports = { copyFiles, deleteFiles, deleteFile, fileExists, downloadFile, fileList }
